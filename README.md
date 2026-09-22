@@ -32,7 +32,7 @@
 - [Python 3.11.9 Windows x64 安装程序](https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe)
 - [Godot 4.7.2 标准版 Windows x64 ZIP](https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_win64.exe.zip)
 
-[downloads](downloads/README.md) 提供附件清单与 SHA256 校验说明。**目前 GitHub Release 附件尚未发布，请先使用官方链接；源码 ZIP 不含安装包。** 发布后可从 Release 的 Assets 获取同版本附件。
+也可从 [第 00 章 Release](https://github.com/mrshen/godot-netcode-00-baseline/releases/tag/chapter-00-v0.1.0) 的 **Assets** 下载同版本安装包与校验清单。[downloads](downloads/README.md) 提供使用和校验说明；源码 ZIP 不含安装包。
 
 ## 第二步：安装工具
 

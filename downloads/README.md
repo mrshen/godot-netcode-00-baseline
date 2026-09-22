@@ -14,9 +14,7 @@
 
 ## 从哪里取得课程附件
 
-**当前状态：安装包已在本地本目录准备并校验，GitHub Release 尚未发布。** 现在可以使用上表的官方备用链接，它们与准备发布的附件是相同文件。
-
-正式发布时，两份安装包和 `SHA256SUMS.txt` 会作为第 00 章 Release `chapter-00-v0.1.0` 的 **Assets** 提供。发布完成后这里会补上实际 Release 链接，不使用虚构的仓库地址。
+在 [第 00 章 Release：chapter-00-v0.1.0](https://github.com/mrshen/godot-netcode-00-baseline/releases/tag/chapter-00-v0.1.0) 的 **Assets** 中下载两份安装包与 `SHA256SUMS.txt`。附件均已核对 SHA256，也可使用上表的官方备用链接取得相同文件。
 
 GitHub 的 **Code → Download ZIP** 下载的是源码；Release 的 **Assets** 下载的是安装包，两者用途不同。安装包没有加入 Git 历史，因此仅克隆仓库不会得到 EXE/引擎 ZIP；请从 Assets 或上面的官方链接单独取得。
 

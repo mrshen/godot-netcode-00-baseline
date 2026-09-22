@@ -26,9 +26,11 @@
 ## GitHub 登录与公开托管
 
 ```bat
-.\tools.bat gh auth login --hostname github.com --git-protocol https --web
+.\tools.bat gh auth login --hostname github.com --git-protocol https --web --scopes workflow
 .\tools.bat gh auth status
 ```
+
+`workflow` 权限用于上传仓库内的 GitHub Actions 自动验证文件；缺少它时 GitHub 会拒绝推送。
 
 完成浏览器授权后，将下面的 `YOUR_ACCOUNT` 替换为自己的账号或有写入权限的组织，再创建并推送公开仓库：
 
