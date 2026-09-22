@@ -4,7 +4,9 @@ This project runs on **Godot Engine**, distributed under the MIT license.
 Godot copyright, license text, and third-party attributions are available at:
 [https://godotengine.org/license/](https://godotengine.org/license/).
 
-The documentation links to these separately installed tools; this repository does not redistribute them:
+The documentation links to these separately installed tools. Original Python
+and Godot packages are staged in `downloads/` for chapter 00 Release assets;
+their binaries are excluded from the source Git history:
 
 - [Python](https://docs.python.org/3/license.html), under its Python license terms.
 - [Git for Windows](https://github.com/git-for-windows/git), under GPLv2 and associated component licenses.

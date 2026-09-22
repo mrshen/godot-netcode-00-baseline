@@ -2,6 +2,8 @@
 
 Python、Godot、Git 都安装在章节目录之外，安装位置由你决定。每章只保存源码、版本要求和启动脚本，不下载或携带一套引擎、Python，也不创建 `.tools`。
 
+首次学习请按 [主 README 的七步教程](../README.md) 操作，它包含完整顺序和每一步的预期结果。本文补充配置细节；[downloads](../downloads/README.md) 提供第 00 章安装包附件、发布状态和校验说明。
+
 下面以 Windows x64、D 盘为例。没有 D 盘时，选择其他目录并修改路径即可。
 
 ## 版本与官方下载
@@ -15,7 +17,7 @@ Python、Godot、Git 都安装在章节目录之外，安装位置由你决定�
 
 GDScript 和 GodotPhysics2D 随 Godot 版本固定，无需单独安装。客户端使用 Compatibility / OpenGL，物理频率 60 Hz。首次验证系统为 Windows 11 Pro x64，构建号 26200。
 
-这里提供官方文件链接，安装包无需重复提交进每章 Git 仓库。需要离线分发时，可以将相同文件作为 Release 附件，保留原始文件名、许可证和校验值。[toolchain.lock.json](../toolchain.lock.json) 记录版本及安装包 SHA256，章节脚本只用它检查版本，不自动下载安装。
+第 00 章已经准备 Python 和 Godot 的原始安装包作为课程附件，保存于本地 `downloads/`，以 Release Assets 分发，不加入源码 Git 历史。当前发布状态与官方备用链接见 [附件目录](../downloads/README.md)。[toolchain.lock.json](../toolchain.lock.json) 记录版本及安装包 SHA256，章节脚本只用它检查版本，不自动下载安装。
 
 ## 1. 安装一次
 
@@ -34,13 +36,13 @@ D:\syncDemo\
   godot-netcode-01-tcp\               # 后续章节
 ```
 
-**Python：** 已有 3.11+ 就直接使用。新安装时打开官方 EXE，选择 `Customize installation`，保留 pip，在高级选项中把安装位置改为自己的工具目录，例如 `D:\Tools\Python311`。本课程不要求修改系统 PATH，使用下文共享配置即可。官方完整安装程序会执行常规的软件注册；由你根据自己的电脑情况运行安装。
+**Python：** 已有 3.11+ 就直接使用。新安装时打开官方 EXE，选择 `Customize installation`，保留 pip，在高级选项中把安装位置改为自己的工具目录，例如 `D:\Tools\Python311`。本课程不要求修改系统 PATH，使用下文共享配置即可。
 
 **Godot：** 将 ZIP 解压到自己选择的目录即可。标准版不需要 .NET SDK 或 C++ 编译器；编辑器和无窗口服务端使用同一套引擎文件。
 
 **Git / GitHub CLI：** 已有环境直接复用。下载源码 ZIP 后运行 Demo 不依赖这两项工具；克隆、提交和发布仓库时才需要。
 
-本机已经准备好的共享 Python 3.11.9 来自 CPython 官方 [NuGet 包](https://www.nuget.org/packages/python/3.11.9)，解压到 `D:\Tools\Python311`，具备 pip 和 venv，不是之前缺少 pip 的 embeddable 包。该发行包侧重脚本/构建用途，不带 IDLE 等界面工具。它无需运行安装程序或修改注册表；如果你自行配置电脑，使用上面的完整 EXE 安装方式同样适用。[Python 官方 Windows 发行方式说明](https://docs.python.org/3.11/using/windows.html)
+作为参考，作者验证使用的 Python 3.11.9 来自 CPython 官方 [NuGet 包](https://www.nuget.org/packages/python/3.11.9)，具备 pip 和 venv，侧重脚本/构建用途，不带 IDLE 等界面工具。课程附件则提供更适合手动安装的完整 EXE。二者运行本章标准库脚本的要求相同，读者按主教程安装 EXE 即可。[Python 官方 Windows 发行方式说明](https://docs.python.org/3.11/using/windows.html)
 
 ## 2. 只配置一次路径
 
@@ -78,7 +80,7 @@ D:\OtherProjects\godot-netcode-00-baseline\tools.bat doctor
 
 `setup.bat` 现在只检查环境，不下载、安装软件或创建虚拟环境。`tools.bat doctor` 执行同样的检查，适合命令行使用；双击 `setup.bat` 会保留结果窗口。
 
-输出应指向你选定的共享目录。Godot 不符合本章要求或不可用时，检查返回非零退出码；Git/gh 缺失只提示它们是可选工具。
+输出应指向你选定的共享目录，并在末尾显示 `ENVIRONMENT OK: Python and Godot are ready.`。Godot 不符合本章要求或不可用时，显示 `ENVIRONMENT NOT READY` 并返回非零退出码；Git/gh 缺失只提示它们是可选工具。
 
 ## Python 依赖怎样管理
 
@@ -86,7 +88,7 @@ D:\OtherProjects\godot-netcode-00-baseline\tools.bat doctor
 
 后续某章确实引入第三方包时，该章会注明版本和安装命令。必要的虚拟环境只隔离 Python 包，不复制整套 Godot，也不要求重新安装基础 Python。避免为所有章节强行安装同一批可能冲突的包。
 
-## 本机验证与自动化
+## 作者参考环境与自动化
 
 - 当前本机共享 Python：`D:\Tools\Python311\python.exe`，3.11.9，pip 24.0。
 - 当前本机共享 Godot：`D:\Tools\Godot\4.7.2`，4.7.2.stable.official.ed1daf0bf。
@@ -99,8 +101,6 @@ D:\OtherProjects\godot-netcode-00-baseline\tools.bat doctor
 ## 常见问题
 
 **找不到 Python/Godot：** 检查共享配置里的完整 EXE 路径。Python 的目录本身不能代替 `python.exe`；Godot 建议使用带 `_console.exe` 的可执行文件以便保留日志。
-
-**原来有 `.local-tools.json` 或 `.tools`：** 这是旧的逐章安装方式。先配置共享环境，确认 `doctor` 和 `verify` 通过，再清理你自己创建的重复工具文件。新版脚本不读取旧目录。
 
 **刚把工具加入 PATH，终端仍找不到：** 新开一个终端，或直接使用共享配置文件指定路径。
 

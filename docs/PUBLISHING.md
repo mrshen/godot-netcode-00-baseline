@@ -40,6 +40,20 @@
 
 仓库已经存在时，先核对 `git remote -v` 指向的地址，再进行普通 push；不要强制覆盖已有历史。
 
+## 发布第 00 章环境附件
+
+本章的 `downloads/` 已准备安装包文件名、[SHA256 清单](../downloads/SHA256SUMS.txt) 和 [Release 说明](../downloads/RELEASE_NOTES.md)。维护者将相应官方原始安装包放入该目录，按清单确认校验值一致。EXE/ZIP 被 `.gitignore` 排除，不进入源码 Git 历史。
+
+确认仓库的 `main` 已推送，且本地 `downloads/` 内两份安装包都存在后，在本章目录的 CMD 执行：
+
+```bat
+.\tools.bat gh release create chapter-00-v0.1.0 downloads/python-3.11.9-amd64.exe downloads/Godot_v4.7.2-stable_win64.exe.zip downloads/SHA256SUMS.txt --target main --title "Chapter 00 - Environment and shared physics world" --notes-file downloads/RELEASE_NOTES.md
+```
+
+此命令实际创建公开 Release 并上传三份附件。发布后检查 Assets 是否齐全，再将实际 Release 链接补入 `downloads/README.md` 并更新其发布状态。若同名 Release 已存在，先查看现有内容，不要直接覆盖附件。
+
+源码的自动下载包与环境附件分别提供；其他章节链接到第 00 章的同一份环境附件，无需重复上传一套安装包。
+
 ## 发布完成后的维护
 
 - 把仓库地址补到工作区索引，并在下一章完成时补全前后章导航。

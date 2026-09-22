@@ -87,6 +87,8 @@ def doctor() -> bool:
                 print(f"  {name} is optional for running this chapter.")
     print("requirements.txt: no third-party Python packages required in chapter 00.")
     print("Environment check only. No software is downloaded or installed.")
+    print("ENVIRONMENT OK: Python and Godot are ready." if ready
+          else "ENVIRONMENT NOT READY: fix the required tools listed above.")
     return ready
 
 

@@ -13,3 +13,11 @@ __pycache__/
 .venv/
 .DS_Store
 Thumbs.db
+
+# Local collaboration instructions are private, including case variants.
+[Aa][Gg][Ee][Nn][Tt][Ss].[Mm][Dd]
+
+# Installers are staged locally, then distributed as GitHub Release assets.
+/downloads/*.exe
+/downloads/*.zip
+/downloads/*.nupkg
