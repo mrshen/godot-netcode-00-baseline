@@ -49,6 +49,12 @@ def resolve_tool(name: str) -> Path:
 
 def process_env() -> dict[str, str]:
     env = os.environ.copy()
+    # Python discovers the existing Windows proxy settings; Git/gh otherwise
+    # only see proxy environment variables. Reuse them in child processes only.
+    for scheme, address in urllib.request.getproxies().items():
+        if scheme in ("http", "https"):
+            if f"{scheme}_proxy" not in env and f"{scheme.upper()}_PROXY" not in env:
+                env[f"{scheme.upper()}_PROXY"] = address
     # gh invokes git internally. Make the located Git visible to this process only.
     try:
         git = resolve_tool("git")
