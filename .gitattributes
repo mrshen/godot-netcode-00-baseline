@@ -1,0 +1,10 @@
+* text=auto
+*.gd text eol=lf
+*.gd.uid text eol=lf
+*.tscn text eol=lf
+*.godot text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.py text eol=lf
+*.bat text eol=crlf

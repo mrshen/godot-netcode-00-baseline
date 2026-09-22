@@ -1,0 +1,14 @@
+.godot/
+.tools/
+artifacts/
+builds/
+.env
+.env.*
+*.log
+*.tmp
+.local-tools.json
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+Thumbs.db

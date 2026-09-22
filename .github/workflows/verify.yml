@@ -1,0 +1,29 @@
+name: Verify chapter 00
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  baseline:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: cmd
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pinned portable tools
+        run: tools.bat setup --tools godot
+      - name: Verify both runtime roles
+        run: tools.bat verify
+      - name: Upload verification logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: chapter-00-verification
+          path: artifacts/

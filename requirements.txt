@@ -1,0 +1,4 @@
+# Requires Python >= 3.11.
+# Chapter 00 uses the Python standard library only: no PyPI packages required.
+# Pin future third-party Python dependencies here with package==version.
+# Godot / Git / GitHub CLI binary versions belong in toolchain.lock.json.
