@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import os
 from pathlib import Path
@@ -12,39 +11,29 @@ import shutil
 import subprocess
 import sys
 import urllib.request
-import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 LOCK = json.loads((ROOT / "toolchain.lock.json").read_text(encoding="utf-8"))
 ARTIFACTS = ROOT / "artifacts"
 
 
-def tool_roots() -> list[Path]:
-    roots = [ROOT / ".tools", ROOT.parent / ".tools"]
-    if os.environ.get("SYNC_DEMO_TOOLS_DIR"):
-        roots.insert(0, Path(os.environ["SYNC_DEMO_TOOLS_DIR"]))
-    return roots
-
-
 def resolve_tool(name: str) -> Path:
     spec = LOCK[name]
     override = os.environ.get(f"NETCODE_{name.upper()}")
-    local_config = ROOT / ".local-tools.json"
-    if not override and local_config.exists():
-        override = json.loads(local_config.read_text(encoding="utf-8")).get(name)
     if override:
         executable = Path(override).expanduser().resolve()
         if not executable.is_file():
             raise RuntimeError(f"Invalid local {name} path: {executable}")
         return executable
-    for directory in tool_roots():
-        executable = directory / spec["directory"] / spec["executable"]
-        if executable.is_file():
-            return executable
-    command = shutil.which({"godot": "godot", "git": "git", "github": "gh"}[name])
-    if command:
-        return Path(command)
-    raise FileNotFoundError(f"Missing {name}; run setup.bat first.")
+    candidates = ["godot", "godot4", spec["executable"], spec["editorExecutable"]] if name == "godot" else ["git" if name == "git" else "gh"]
+    for candidate in candidates:
+        command = shutil.which(candidate)
+        if command:
+            return Path(command)
+    raise FileNotFoundError(
+        f"Missing {name}. Install it once outside chapter folders, then configure "
+        f"NETCODE_{name.upper()} or PATH. See docs/ENVIRONMENT.md."
+    )
 
 
 def process_env() -> dict[str, str]:
@@ -59,7 +48,7 @@ def process_env() -> dict[str, str]:
     try:
         git = resolve_tool("git")
         env["PATH"] = str(git.parent) + os.pathsep + env.get("PATH", "")
-    except FileNotFoundError:
+    except (FileNotFoundError, RuntimeError):
         pass
     return env
 
@@ -79,86 +68,26 @@ def godot_executable() -> Path:
     return executable
 
 
-def install_tool(name: str, destination: Path) -> None:
-    spec = LOCK[name]
-    target = destination / spec["directory"]
-    executable = target / spec["executable"]
-    if executable.is_file():
-        print(f"Already available: {name} {spec['version']}", flush=True)
-        return
-    downloads = destination / "downloads"
-    downloads.mkdir(parents=True, exist_ok=True)
-    archive = downloads / spec["url"].rsplit("/", 1)[1]
-    if not archive.is_file():
-        temporary = archive.with_suffix(archive.suffix + ".part")
-        print(f"Downloading {name} {spec['version']}...", flush=True)
-        request = urllib.request.Request(spec["url"], headers={"User-Agent": "Godot-Netcode-Lab"})
-        with urllib.request.urlopen(request, timeout=60) as source, temporary.open("wb") as output:
-            shutil.copyfileobj(source, output)
-        temporary.replace(archive)
-    with archive.open("rb") as source:
-        digest = hashlib.file_digest(source, "sha256").hexdigest()
-    if digest != spec["sha256"]:
-        raise RuntimeError(f"SHA256 mismatch: {archive}. Move the archive aside and retry.")
-    target.mkdir(parents=True, exist_ok=True)
-    with zipfile.ZipFile(archive) as bundle:
-        for entry in bundle.infolist():
-            if not (target / entry.filename).resolve().is_relative_to(target.resolve()):
-                raise RuntimeError("Unsafe archive member: " + entry.filename)
-        bundle.extractall(target)
-    if not executable.is_file():
-        raise RuntimeError(f"Missing executable after extraction: {executable}")
-    print(f"Ready: {executable}", flush=True)
-
-
-def setup(args: argparse.Namespace) -> None:
-    destination = args.destination.resolve() if args.destination else tool_roots()[0]
-    for name in args.tools:
-        if not args.destination:
-            try:
-                print(f"Using {name}: {resolve_tool(name)}", flush=True)
-                continue
-            except FileNotFoundError:
-                pass
-        install_tool(name, destination)
-    install_python_dependencies()
-    doctor()
-
-
-def install_python_dependencies() -> None:
-    requirements = ROOT / "requirements.txt"
-    lines = requirements.read_text(encoding="utf-8").splitlines()
-    if not any(line.strip() and not line.lstrip().startswith("#") for line in lines):
-        print("requirements.txt: standard library only; no packages to install.")
-        return
-    try:
-        execute([sys.executable, "-m", "pip", "--version"], capture=True, timeout=15)
-    except subprocess.CalledProcessError as error:
-        raise RuntimeError(
-            "Python packages now require pip. Select a full Python 3.11+ installation "
-            "with NETCODE_PYTHON, then rerun setup. The embeddable fallback has no pip."
-        ) from error
-    # Keep third-party dependencies inside this chapter, never in global Python.
-    environment = ROOT / ".venv"
-    environment_python = environment / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
-    if not environment_python.is_file():
-        execute([sys.executable, "-m", "venv", environment])
-    execute([environment_python, "-m", "pip", "install", "-r", requirements])
-
-
-def doctor() -> None:
+def doctor() -> bool:
     print(f"OS: {platform.platform()}")
     print(f"Architecture: {platform.machine()}")
     print(f"Python: {platform.python_version()} ({sys.executable})")
     print("Gameplay: GDScript, bundled with the pinned Godot version")
+    ready = True
     for name in ("godot", "git", "github"):
         try:
-            executable = resolve_tool(name)
+            executable = godot_executable() if name == "godot" else resolve_tool(name)
             version = execute([executable, "--version"], capture=True, timeout=15).stdout.splitlines()[0]
             print(f"{name}: {version} ({executable})")
-        except FileNotFoundError:
-            print(f"{name}: not installed (run setup.bat)")
-    print("No .NET SDK, pip packages, or PowerShell scripts are required.")
+        except (FileNotFoundError, RuntimeError, subprocess.SubprocessError) as error:
+            print(f"{name}: {error}")
+            if name == "godot":
+                ready = False
+            else:
+                print(f"  {name} is optional for running this chapter.")
+    print("requirements.txt: no third-party Python packages required in chapter 00.")
+    print("Environment check only. No software is downloaded or installed.")
+    return ready
 
 
 def godot_check(arguments: list[str | Path], log_name: str) -> str:
@@ -203,16 +132,14 @@ def verify(args: argparse.Namespace) -> None:
 
 def main() -> int:
     if sys.version_info < (3, 11):
-        raise RuntimeError("Python 3.11+ is required; tools.bat supplies pinned Python 3.14.7.")
+        raise RuntimeError("Python 3.11+ is required. See docs/ENVIRONMENT.md for installation.")
     if len(sys.argv) > 1 and sys.argv[1] in ("git", "gh"):
         name = "github" if sys.argv[1] == "gh" else "git"
         execute([resolve_tool(name), *sys.argv[2:]])
         return 0
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
-    install = commands.add_parser("setup", help="Download and verify portable tools")
-    install.add_argument("--destination", type=Path)
-    install.add_argument("--tools", nargs="+", choices=["godot", "git", "github"], default=["godot", "git", "github"])
+    commands.add_parser("setup", help="Check the shared environment; never download or install tools")
     commands.add_parser("doctor", help="Print the actual local tool versions")
     client = commands.add_parser("client", help="Run the local demo, or open its editor")
     client.add_argument("--editor", action="store_true")
@@ -226,10 +153,8 @@ def main() -> int:
         command = commands.add_parser(name, help=f"Invoke located {name} without changing system PATH", add_help=False)
         command.add_argument("arguments", nargs=argparse.REMAINDER)
     args = parser.parse_args()
-    if args.command == "setup":
-        setup(args)
-    elif args.command == "doctor":
-        doctor()
+    if args.command in ("setup", "doctor"):
+        return 0 if doctor() else 1
     elif args.command == "client":
         flags = ["--editor"] if args.editor else ["--", "--role=client"]
         execute([godot_executable(), "--path", ROOT, *flags])

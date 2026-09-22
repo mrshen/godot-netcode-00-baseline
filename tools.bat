@@ -1,11 +1,17 @@
 @echo off
 setlocal
-rem Only bootstrap Python here. All project operations live in scripts/tools.py.
-rem This bootstrap uses Windows curl, certutil and tar; it never changes PATH.
+rem A shared config is optional when the tools are already on PATH.
+if defined NETCODE_ENV (
+    if not exist "%NETCODE_ENV%" (
+        echo ERROR: NETCODE_ENV does not point to an existing configuration file.
+        exit /b 2
+    )
+    call "%NETCODE_ENV%"
+) else (
+    if exist "%~dp0..\environment.local.bat" call "%~dp0..\environment.local.bat"
+)
 if defined NETCODE_PYTHON goto custom_python
 set "LAB_PYTHON="
-if exist "%~dp0.venv\Scripts\python.exe" call :try_python "%~dp0.venv\Scripts\python.exe"
-if defined LAB_PYTHON goto run
 where.exe py.exe >nul 2>&1
 if errorlevel 1 goto search_python
 py -3 -c "import sys; sys.exit(sys.version_info < (3, 11))" >nul 2>&1
@@ -15,25 +21,17 @@ for /f "delims=" %%P in ('where.exe python.exe 2^>nul ^| findstr.exe /v /i Windo
     call :try_python "%%P"
     if defined LAB_PYTHON goto run
 )
-set "LAB_PYTHON_DIR=%~dp0.tools\python-3.14.7"
-set "LAB_PYTHON=%LAB_PYTHON_DIR%\python.exe"
-if exist "%LAB_PYTHON%" goto run
-set "LAB_ARCHIVE=%~dp0.tools\downloads\python-3.14.7-embed-amd64.zip"
-if not exist "%~dp0.tools\downloads" mkdir "%~dp0.tools\downloads"
-if errorlevel 1 exit /b 1
-echo Bootstrapping portable Python 3.14.7...
-if exist "%LAB_ARCHIVE%" goto checksum
-curl.exe --fail --location --retry 3 --output "%LAB_ARCHIVE%" "https://www.python.org/ftp/python/3.14.7/python-3.14.7-embed-amd64.zip"
-if errorlevel 1 exit /b 1
-:checksum
-certutil.exe -hashfile "%LAB_ARCHIVE%" SHA256 | findstr.exe /i /x "d297e5ff019966817ad8502465176139f2d3d840fa4ed84b13bed399a6ab1f15" >nul
-if errorlevel 1 goto bad_checksum
-if not exist "%LAB_PYTHON_DIR%" mkdir "%LAB_PYTHON_DIR%"
-tar.exe -xf "%LAB_ARCHIVE%" -C "%LAB_PYTHON_DIR%"
-if errorlevel 1 exit /b 1
-goto run
+echo ERROR: Python 3.11+ was not found. No automatic installation is performed.
+echo Install Python once in your preferred directory. See docs\ENVIRONMENT.md.
+echo Set NETCODE_PYTHON or configure the shared environment.local.bat file.
+exit /b 2
 :custom_python
 set "LAB_PYTHON=%NETCODE_PYTHON%"
+call :try_python "%LAB_PYTHON%"
+if errorlevel 1 (
+    echo ERROR: NETCODE_PYTHON must point to a working Python 3.11+ executable.
+    exit /b 2
+)
 :run
 "%LAB_PYTHON%" -X utf8 "%~dp0scripts\tools.py" %*
 exit /b %errorlevel%
@@ -42,8 +40,6 @@ py -3 -X utf8 "%~dp0scripts\tools.py" %*
 exit /b %errorlevel%
 :try_python
 "%~1" -c "import sys; sys.exit(sys.version_info < (3, 11))" >nul 2>&1
-if not errorlevel 1 set "LAB_PYTHON=%~1"
+if errorlevel 1 exit /b 1
+set "LAB_PYTHON=%~1"
 exit /b 0
-:bad_checksum
-echo ERROR: Python archive SHA256 mismatch. Move the archive aside and retry.
-exit /b 1

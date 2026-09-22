@@ -21,7 +21,7 @@
 .\tools.bat git commit -m "feat: add chapter 00 shared Godot world and reproducible tooling"
 ```
 
-提交前检查 `.tools/`、`.godot/`、`artifacts/`、`.local-tools.json` 都未被跟踪。工具二进制、登录信息和个人路径不上传。
+提交前检查 `.godot/`、`artifacts/` 和个人环境配置都未被跟踪。Python、Godot 等工具在仓库外共用，不把二进制、登录信息或个人路径上传。
 
 ## GitHub 登录与公开托管
 
@@ -44,5 +44,5 @@
 
 - 把仓库地址补到工作区索引，并在下一章完成时补全前后章导航。
 - 每章内部正常维护 Git 提交；课程学习路径以 README 为准。
-- `.github/workflows/verify.yml` 在 Windows runner 上下载锁定 Godot 并运行无窗口验证。
+- `.github/workflows/verify.yml` 在 Windows runner 的临时目录准备锁定 Godot 并运行无窗口验证。
 - GitHub 登录与授权需要仓库所有者本人完成，不能通过仓库文件代替授权。

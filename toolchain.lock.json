@@ -1,34 +1,26 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "platform": "windows-x86_64",
   "python": {
     "minimumVersion": "3.11",
-    "version": "3.14.7",
-    "directory": "python-3.14.7",
-    "executable": "python.exe",
-    "url": "https://www.python.org/ftp/python/3.14.7/python-3.14.7-embed-amd64.zip",
-    "sha256": "d297e5ff019966817ad8502465176139f2d3d840fa4ed84b13bed399a6ab1f15"
+    "version": "3.11.9",
+    "url": "https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe",
+    "sha256": "5ee42c4eee1e6b4464bb23722f90b45303f79442df63083f05322f1785f5fdde"
   },
   "godot": {
     "version": "4.7.2-stable",
     "runtimeVersionPrefix": "4.7.2.stable",
-    "directory": "godot-4.7.2",
     "executable": "Godot_v4.7.2-stable_win64_console.exe",
     "editorExecutable": "Godot_v4.7.2-stable_win64.exe",
     "url": "https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_win64.exe.zip",
     "sha256": "731980f9608d61333e5baf54a2ef17210acc7a538446c0cb9969f002aca1e953"
   },
   "git": {
-    "version": "2.55.0.windows.5",
-    "directory": "mingit-2.55.0.5",
-    "executable": "cmd/git.exe",
-    "url": "https://github.com/git-for-windows/git/releases/download/v2.55.0.windows.5/MinGit-2.55.0.5-64-bit.zip",
-    "sha256": "56d7b226b7693196cfc71fef26568f536c4a021ab6c37ff2db4287bed908e96e"
+    "version": "2.35.1.windows.2",
+    "downloadPage": "https://git-scm.com/install/windows"
   },
   "github": {
     "version": "2.101.0",
-    "directory": "gh-2.101.0",
-    "executable": "bin/gh.exe",
     "url": "https://github.com/cli/cli/releases/download/v2.101.0/gh_2.101.0_windows_amd64.zip",
     "sha256": "bc6c814367b193cd8e713611d61e36013c0ef843b8f516458fe3eda039192794"
   }

@@ -17,8 +17,26 @@ jobs:
         shell: cmd
     steps:
       - uses: actions/checkout@v4
-      - name: Install pinned portable tools
-        run: tools.bat setup --tools godot
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Prepare Godot in the temporary CI environment
+        shell: python
+        run: |
+          import hashlib, json, os, pathlib, urllib.request, zipfile
+          spec = json.loads(pathlib.Path('toolchain.lock.json').read_text())['godot']
+          destination = pathlib.Path(os.environ['RUNNER_TEMP']) / 'godot-netcode-engine'
+          destination.mkdir(parents=True, exist_ok=True)
+          archive = destination / 'godot.zip'
+          urllib.request.urlretrieve(spec['url'], archive)
+          with archive.open('rb') as stream:
+              assert hashlib.file_digest(stream, 'sha256').hexdigest() == spec['sha256'], 'SHA256 mismatch'
+          with zipfile.ZipFile(archive) as bundle:
+              bundle.extractall(destination)
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as env:
+              env.write(f"NETCODE_GODOT={destination / spec['executable']}\n")
+      - name: Check shared tools
+        run: tools.bat setup
       - name: Verify both runtime roles
         run: tools.bat verify
       - name: Upload verification logs

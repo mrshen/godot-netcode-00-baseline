@@ -30,15 +30,15 @@
 | 游戏逻辑 | GDScript，版本随上述 Godot 一起固定 |
 | 物理 | GodotPhysics2D，固定 **60 Hz** |
 | 渲染 | Compatibility / OpenGL，2D |
-| 工具脚本 | **Python 3.11+**，优先复用本机；便携备用版本 **3.14.7**，仅标准库 |
-| 启动入口 | Windows BAT；引导使用系统 `curl.exe`、`certutil.exe` 和 `tar.exe` |
-| Git | 本机复用 **2.35.1.windows.2**；缺失时安装锁定的 MinGit **2.55.0.windows.5** |
+| 工具脚本 | **Python 3.11+**，当前使用共享 **3.11.9**，仅标准库 |
+| 启动入口 | Windows BAT + Python，读取一次配置好的共享环境 |
+| Git | 本机复用 **2.35.1.windows.2**；只在版本管理时需要 |
 | GitHub CLI | **2.101.0**，发布仓库时使用 |
 | 编辑器 | Godot 内置脚本编辑器即可；VS Code 可选 |
 
 不需要 .NET SDK、C#、C++ 编译器、pip 包或 PowerShell 脚本。VS Code 的 GitHub 扩展也不是运行依赖。
 
-独立程序的下载地址及 SHA256 固定在 [toolchain.lock.json](toolchain.lock.json)。Python 包依赖由 [requirements.txt](requirements.txt) 管理，目前只有说明注释，无需安装额外包。Godot 版本严格检查；Python 支持 3.11+，找不到合适的本机版本时 BAT 才下载上述便携备用版本。
+**工具安装一次，各章共同使用。** Python/Godot 安装在你选择的目录，章节内不创建 `.tools`，也不自动下载。版本和官方安装包校验值记录在 [toolchain.lock.json](toolchain.lock.json)；Python 包由 [requirements.txt](requirements.txt) 管理，目前没有额外包需要安装。
 
 ## 从零启动
 
@@ -48,15 +48,22 @@
 D:\syncDemo\godot-netcode-00-baseline
 ```
 
-### 1. 准备工具
+### 1. 配置一次共享环境
 
-双击 `setup.bat`，或在项目目录的终端执行：
+已有 Python 3.11+ 和指定版本 Godot 时直接复用。首次安装请从以下官方链接下载，安装/解压到自己选择的目录：
+
+- [Python 3.11.9 x64 安装程序](https://www.python.org/ftp/python/3.11.9/python-3.11.9-amd64.exe)，例如 `D:\Tools\Python311`。
+- [Godot 4.7.2 标准版 ZIP](https://github.com/godotengine/godot/releases/download/4.7.2-stable/Godot_v4.7.2-stable_win64.exe.zip)，例如 `D:\Tools\Godot\4.7.2`。
+
+将 [environment.example.bat](environment.example.bat) 复制到各章节共同的上级目录，命名为 `environment.local.bat`，填写自己的路径。后续章节沿用这份配置。如果工具已在 PATH 中，也可以不配置文件。
+
+详细步骤见 [环境安装与共享配置](docs/ENVIRONMENT.md)。完成后，双击 `setup.bat` 或执行：
 
 ```bat
 .\setup.bat
 ```
 
-首次运行优先查找本机 Python 3.11+，缺失时下载便携 Python，随后查找或下载 Godot、Git 和 GitHub CLI，校验下载包的 SHA256，并处理 `requirements.txt`。工具默认位于本章的 `.tools/`，也能复用工作区上层 `.tools/` 中的对应版本。无需管理员权限，不修改注册表、系统 PATH 或系统执行策略。
+这一步**只检查环境**，不安装软件、不创建工具目录。缺失工具时给出提示，由你选择安装位置。仓库只包含源码、文档和示例配置。
 
 查看实际使用的版本及路径：
 
@@ -64,7 +71,7 @@ D:\syncDemo\godot-netcode-00-baseline
 .\tools.bat doctor
 ```
 
-已有工具但没有加入 PATH 时，参阅 [本机工具路径配置](docs/ENVIRONMENT.md#复用已经安装的工具)。
+已有工具但没有加入 PATH 时，填写上面的共享配置即可，无需为每章重新配置。
 
 ### 2. 启动客户端
 
@@ -125,7 +132,7 @@ PASS: both runtime roles matched at 6 checkpoints / 360 ticks (tolerance 0.001).
 
 日志与 JSON 报告写入 `artifacts/`，不提交 Git。这个实验验证的是当前机器、版本与场景，不代表 Godot 物理具有跨平台确定性。
 
-首次本地验证（2026-09-22）：Python 3.14.7 的无窗口双端验证通过；Python 3.11.9 的有画面客户端 + 无窗口服务端验证通过。README 截图由实际 Godot 客户端生成。仓库附带 GitHub Actions 配置，其云端结果以 GitHub 上实际运行记录为准。
+本地验证环境为 Python 3.11.9 + Godot 4.7.2；README 截图由实际 Godot 客户端生成。仓库附带 GitHub Actions 配置，其云端结果以 GitHub 上实际运行记录为准。
 
 ## 本章要亲手观察的三件事
 
@@ -144,7 +151,7 @@ PASS: both runtime roles matched at 6 checkpoints / 360 ticks (tolerance 0.001).
 | [shared/player.gd](shared/player.gd) | 输入、速度、碰撞和滑动的关系 |
 | [client/presentation.gd](client/presentation.gd) | 表现如何读取模拟状态，不反向修改模拟 |
 | [verification/scenario.gd](verification/scenario.gd) | 一段输入如何验证可观察的行为 |
-| [scripts/tools.py](scripts/tools.py) | 下载、版本检查、启动、验证等工程工具 |
+| [scripts/tools.py](scripts/tools.py) | 共享工具查找、版本检查、启动和验证 |
 
 ## 本章边界与下一步
 
